@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Civilian Radar System — High-Level Design</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#596579; --line:#dbe2ec; --accent:#1769aa; --panel:#f4f7fb; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:#eef2f7; color:var(--ink); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; }
+    main { max-width:1000px; margin:32px auto; padding:44px 52px; background:#fff; box-shadow:0 8px 32px #17203318; border-radius:14px; }
+    h1,h2,h3 { line-height:1.25; }
+    h1 { margin:0 0 8px; font-size:2rem; }
+    h2 { margin:34px 0 12px; padding-bottom:8px; border-bottom:2px solid var(--line); color:#123d63; }
+    h3 { margin:22px 0 8px; color:#234d70; }
+    p,li { color:#263247; }
+    .subtitle,.muted { color:var(--muted); }
+    .meta { display:flex; flex-wrap:wrap; gap:8px 22px; margin:18px 0 26px; padding:14px 16px; background:var(--panel); border-radius:9px; }
+    .meta span { font-size:.93rem; }
+    table { width:100%; border-collapse:collapse; margin:14px 0 20px; font-size:.94rem; }
+    th,td { padding:10px 12px; text-align:left; border:1px solid var(--line); vertical-align:top; }
+    th { background:#edf3f9; }
+    pre { overflow-x:auto; padding:16px; border-radius:9px; background:#101a2a; color:#e7effa; font: .9rem/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    code { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }
+    .note { padding:13px 16px; border-left:4px solid var(--accent); background:#f1f7fc; border-radius:4px; }
+    footer { margin-top:36px; padding-top:16px; border-top:1px solid var(--line); color:var(--muted); font-size:.9rem; }
+    @media (max-width:650px) { main { margin:0; padding:24px 18px; border-radius:0; } h1 { font-size:1.65rem; } table { display:block; overflow-x:auto; } }
+    @media print { body { background:#fff; } main { margin:0; padding:0; box-shadow:none; max-width:none; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Civilian Radar System</h1>
+    <p class="subtitle">High-Level Conceptual Design Document</p>
+    <div class="meta">
+      <span><strong>Project:</strong> 1000 m Civilian Object Detection and Tracking Radar</span>
+      <span><strong>Document type:</strong> Technical architecture reference</span>
+      <span><strong>Design level:</strong> Conceptual</span>
+      <span><strong>Purpose:</strong> Non-personal situational awareness</span>
+    </div>
+    <p>This document outlines a civilian-grade radar concept for detecting and tracking objects at distances of up to 1000 metres. The system outputs kinematic information only; it does not capture imagery, identify individuals, or create personal profiles.</p>
+  </header>
+
+  <section>
+    <h2>1. Hardware Overview</h2>
+    <p>The hardware platform consists of an RF transmitter and receiver, antenna, signal-processing electronics, controller, power subsystem, communications interface, and independent safety controls.</p>
+    <h3>1.1 Core Hardware Components</h3>
+    <table>
+      <thead><tr><th>Component</th><th>Function</th><th>Specification placeholder</th></tr></thead>
+      <tbody>
+        <tr><td>Transmitter</td><td>Generates authorized radar signals</td><td><code>[TRANSMITTER_TYPE]</code></td></tr>
+        <tr><td>Receiver</td><td>Captures reflected RF signals</td><td><code>[RECEIVER_TYPE]</code></td></tr>
+        <tr><td>Antenna</td><td>Transmits and receives RF energy</td><td><code>[ANTENNA_TYPE]</code></td></tr>
+        <tr><td>RF front-end</td><td>Interfaces with transmit and receive chains</td><td><code>[RF_FRONTEND]</code></td></tr>
+        <tr><td>Signal processor</td><td>Processes digitized measurements</td><td><code>[DSP_PROCESSOR]</code></td></tr>
+        <tr><td>Controller</td><td>Coordinates system operation</td><td><code>[CONTROLLER_TYPE]</code></td></tr>
+        <tr><td>Power supply</td><td>Provides regulated electrical power</td><td><code>[POWER_SOURCE]</code></td></tr>
+        <tr><td>Cooling system</td><td>Maintains safe operating temperature</td><td><code>[COOLING_METHOD]</code></td></tr>
+        <tr><td>Communications</td><td>Transfers processed track data</td><td><code>[INTERFACE_TYPE]</code></td></tr>
+        <tr><td>Safety controller</td><td>Enforces transmit permissions and fault response</td><td><code>[SAFETY_CONTROLLER]</code></td></tr>
+      </tbody>
+    </table>
+    <h3>1.2 RF Configuration Placeholders</h3>
+    <p>Frequency and waveform selection must be completed by qualified RF engineers after checking national spectrum allocations, equipment certification, interference constraints, and exposure requirements. No operating values are assumed here.</p>
+    <pre>Maximum Detection Range: 1000 m
+Operating Frequency:     [FREQUENCY] MHz
+Waveform Type:           [WAVEFORM_TYPE]
+Transmit Power:          [POWER] W
+Antenna Type:            [ANTENNA_TYPE]
+Antenna Gain:            [ANTENNA_GAIN] dBi
+Receiver Sensitivity:    [RECEIVER_SENSITIVITY]
+Bandwidth:               [BANDWIDTH] MHz
+Update Rate:             [UPDATE_RATE] Hz</pre>
+    <h3>1.3 Hardware Safety Features</h3>
+    <ul>
+      <li>Independent hardware transmit-power interlock.</li>
+      <li>Transmit-inhibit control that defaults to the safe state.</li>
+      <li>Overtemperature and power-failure protection.</li>
+      <li>RF exposure safeguards and fault monitoring.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>2. Signal Processing Pipeline</h2>
+    <p>The processing subsystem converts received measurements into structured, non-personal target tracks.</p>
+    <h3>2.1 Conceptual Workflow</h3>
+    <pre>RF Signal Reception
+        |
+        v
+Signal Conditioning
+        |
+        v
+Digital Signal Conversion
+        |
+        v
+Noise and Clutter Filtering
+        |
+        v
+Detection Processing
+        |
+        v
+Range and Radial-Velocity Estimation
+        |
+        v
+Measurement-to-Track Association
+        |
+        v
+Track Management and Confidence Assessment
+        |
+        v
+Session-Scoped Label Assignment
+        |
+        v
+Structured Track Data</pre>
+    <h3>2.2 Track Measurements</h3>
+    <ul>
+      <li><strong>Range:</strong> Estimated distance from the radar, in metres.</li>
+      <li><strong>Azimuth:</strong> Horizontal direction relative to the sensor.</li>
+      <li><strong>Velocity:</strong> Estimated radial movement speed, in metres per second.</li>
+      <li><strong>Class:</strong> Broad category only where supported by validated measurements; otherwise <code>UNKNOWN</code>.</li>
+      <li><strong>Status:</strong> New, active, temporarily lost, or terminated.</li>
+      <li><strong>Confidence:</strong> Optional quality indicator for measurement and track reliability.</li>
+    </ul>
+    <h3>2.3 Unique Track Identification</h3>
+    <p>Each track receives a UUID and a readable, session-scoped label such as <code>TARGET-001</code>. The tracking software associates subsequent measurements with existing tracks, preserves labels while continuity remains reliable, and retires labels when tracks terminate. A track identifier is a software reference—not proof of a physical object's identity.</p>
+    <h3>2.4 Example Track Record</h3>
+    <pre>{
+  "track_id": "550e8400-e29b-41d4-a716-446655440000",
+  "label": "TARGET-001",
+  "class": "UNKNOWN",
+  "range_m": "[RANGE]",
+  "azimuth_deg": "[AZIMUTH]",
+  "velocity_mps": "[VELOCITY]",
+  "status": "ACTIVE",
+  "timestamp": "[TIMESTAMP]"
+}</pre>
+  </section>
+
+  <section>
+    <h2>3. Software Architecture</h2>
+    <p>A modular, five-layer architecture separates hardware control, signal processing, track management, data access, and visualization.</p>
+    <h3>3.1 Architecture Overview</h3>
+    <pre>+--------------------------------+
+|       Presentation Layer       |
+|          Radar Display         |
++--------------------------------+
+                |
++--------------------------------+
+|            API Layer           |
+|       Authentication / TLS     |
++--------------------------------+
+                |
++--------------------------------+
+|       Application Layer        |
+|   Detection / Tracking / Labels|
++--------------------------------+
+                |
++--------------------------------+
+|      DSP Processing Layer      |
+|  Range / Velocity / Filtering  |
++--------------------------------+
+                |
++--------------------------------+
+|   Hardware Abstraction Layer   |
+|    RF / Antenna / Controller   |
++--------------------------------+</pre>
+    <h3>3.2 Layer Responsibilities</h3>
+    <ul>
+      <li><strong>Hardware Abstraction Layer:</strong> Interfaces with approved hardware, reports status and faults, and exposes safety-state information.</li>
+      <li><strong>DSP Processing Layer:</strong> Processes digitized measurements, estimates range and radial velocity, filters clutter, and reports confidence.</li>
+      <li><strong>Application Layer:</strong> Manages track lifecycles, associates measurements, assigns labels, stores limited track history, and generates zone alerts.</li>
+      <li><strong>API Layer:</strong> Provides validated track data through authenticated, encrypted interfaces with role-based access, audit logging, and rate limiting.</li>
+      <li><strong>Presentation Layer:</strong> Displays current tracks, system health, and alerts in an accessible interface.</li>
+    </ul>
+    <h3>3.3 Naming Logic</h3>
+    <p>Use <code>[NAMING_ALGORITHM]</code> to generate non-personal labels. A simple implementation may use sequential labels within each session while UUIDs provide stable internal references. Avoid personal names, biometric identification, or identity inference.</p>
+  </section>
+
+  <section>
+    <h2>4. User Interface Sketch</h2>
+    <p>The main display uses a Plan Position Indicator (PPI), with the sensor at the centre and target markers placed according to measured range and azimuth.</p>
+    <h3>4.1 Main Screen Layout</h3>
+    <pre>+------------------------------------------------------+
+|              CIVILIAN RADAR SYSTEM                   |
+|------------------------------------------------------|
+| RANGE: 1000 m          STATUS: [SYSTEM_STATUS]        |
+|                                                      |
+|                  .-----------.                       |
+|              .-'   TARGET-003 '-.                    |
+|            .'                     '.                  |
+|           /                         \                |
+|          |        .---------.        |                |
+|          |        |  RADAR  |        |                |
+|          |        |  CENTER |        |                |
+|          |        '---------'        |                |
+|           \       TARGET-001        /                 |
+|            '.                     .'                  |
+|              '-._____________.-'                     |
+|------------------------------------------------------|
+| ACTIVE TRACKS                                        |
+| ID          RANGE       VELOCITY       STATUS         |
+| TARGET-001  [RANGE]     [VELOCITY]     ACTIVE         |
+| TARGET-002  [RANGE]     [VELOCITY]     ACTIVE         |
+| TARGET-003  [RANGE]     [VELOCITY]     ACTIVE         |
+|------------------------------------------------------|
+| ALERTS: [ALERT_STATUS]                               |
++------------------------------------------------------+</pre>
+    <p class="muted">Illustrative layout only. Target positions and measurements are placeholders, not sample performance data.</p>
+    <h3>4.2 Display Elements and Accessibility</h3>
+    <ul>
+      <li>Circular range rings, radar-centre marker, target markers, and readable labels.</li>
+      <li>Velocity direction indicators and a track-details panel.</li>
+      <li>Configurable detection zones and clear alert states.</li>
+      <li>System health, sensor status, and safe/ inhibited transmit state.</li>
+      <li>High-contrast colours, clear typography, adjustable scaling, and alerts that do not rely on colour alone.</li>
+      <li>Desktop and tablet support with simple navigation.</li>
+    </ul>
+    <p>The interface must clearly state that displayed labels refer to radar tracks, not confirmed identities.</p>
+  </section>
+
+  <section>
+    <h2>5. Compliance &amp; Safety Notes</h2>
+    <h3>5.1 Radio-Frequency Compliance</h3>
+    <ul>
+      <li>Confirm the permitted operating band and licensing requirements with the relevant national spectrum authority.</li>
+      <li>For deployment in Pakistan, consult the Pakistan Telecommunication Authority (PTA) and applicable spectrum regulations.</li>
+      <li>Obtain required equipment approvals and operating permissions before transmission.</li>
+      <li>Remain within authorized emission limits and assess interference with nearby radio services.</li>
+      <li>Do not operate outside authorized frequency, bandwidth, or power limits.</li>
+    </ul>
+    <h3>5.2 RF Exposure and Electrical Safety</h3>
+    <ul>
+      <li>Complete an RF exposure assessment using applicable ICNIRP guidance and local requirements.</li>
+      <li>Assess installation distances, grounding, electrical protection, and environmental conditions.</li>
+      <li>Provide hardware interlocks, transmit-inhibit functionality, and automatic shutdown for unsafe faults.</li>
+      <li>Document inspection, maintenance, and safe operating procedures.</li>
+    </ul>
+    <h3>5.3 Privacy Protection</h3>
+    <ul>
+      <li>Collect and display only the kinematic data required for situational awareness.</li>
+      <li>Do not implement facial recognition, biometrics, personal identity inference, audio/video capture, or personal tracking profiles.</li>
+      <li>Apply data minimization, retention limits, access controls, and applicable privacy laws, including GDPR where relevant.</li>
+    </ul>
+    <h3>5.4 Cybersecurity</h3>
+    <ul>
+      <li>Use TLS-protected communications and strong authentication.</li>
+      <li>Enforce role-based access control and audit security-relevant actions.</li>
+      <li>Protect configuration data, validate inputs, and rate-limit API access.</li>
+      <li>Use authenticated software updates and restrict configuration changes to authorized roles.</li>
+    </ul>
+    <h3>5.5 Operational Safety</h3>
+    <ul>
+      <li>Provide an emergency transmit-inhibit control and hardware-enforced power limits.</li>
+      <li>Use controlled startup and shutdown sequences and continuous fault monitoring.</li>
+      <li>Define safe-state behaviour for loss of control, overheating, or hardware failure.</li>
+      <li>Conduct periodic safety inspections and maintain operating records.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>6. Final Design Summary</h2>
+    <table>
+      <tbody>
+        <tr><th>Design area</th><th>Conceptual approach</th></tr>
+        <tr><td>Maximum intended range</td><td>1000 m, subject to validation</td></tr>
+        <tr><td>Detection output</td><td>Kinematic measurements only</td></tr>
+        <tr><td>Target identification</td><td>Session-scoped UUID and readable label</td></tr>
+        <tr><td>Signal processing</td><td>Range, radial velocity, and track association</td></tr>
+        <tr><td>Software architecture</td><td>Five-layer modular architecture</td></tr>
+        <tr><td>Visualization</td><td>PPI radar display</td></tr>
+        <tr><td>Communication</td><td>Authenticated TLS API</td></tr>
+        <tr><td>Privacy</td><td>No imagery or personal identification</td></tr>
+        <tr><td>Safety</td><td>Hardware interlocks and transmit inhibit</td></tr>
+        <tr><td>RF configuration</td><td>To be determined subject to regulatory approval</td></tr>
+      </tbody>
+    </table>
+    <p class="note"><strong>Engineering qualification:</strong> A 1000 m detection range cannot be guaranteed by distance specification alone. Actual performance depends on target characteristics, propagation conditions, antenna configuration, receiver performance, interference, and legally permitted transmit parameters. Hardware selection, RF configuration, link-budget validation, range testing, and regulatory certification remain engineering activities.</p>
+  </section>
+
+  <footer>
+    Conceptual technical reference only. Not an authorization to transmit or a substitute for qualified engineering review, regulatory approval, or safety certification.
+  </footer>
+</main>
+</body>
+</html>
